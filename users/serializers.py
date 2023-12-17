@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'name', 'telegram_id', 'is_active',)
+        fields = ('id', 'username', 'telegram_id', 'is_active',)
 
 
 class UserCreateSerializer(serializers.Serializer):
@@ -19,7 +19,7 @@ class UserCreateSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         user = User(
-            username=self.validated_data['name'],
+            username=self.validated_data['username'],
             is_active=False
         )
         user.save()
