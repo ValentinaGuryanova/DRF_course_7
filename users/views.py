@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -16,7 +17,7 @@ class UserListAPIView(generics.ListAPIView):
     """ Класс для вывода списка пользователей """
 
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    #queryset = User.objects.all()
 
     permission_classes = [IsAuthenticated]
 
@@ -42,3 +43,14 @@ class UserDestroyAPIView(generics.DestroyAPIView):
     queryset = User.objects.all()
 
     permission_classes = [IsAuthenticated, IsOwner]
+
+
+class UserRegisterApiView(generics.CreateAPIView):
+
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        """Хеширование пароля"""
+
+        password = serializer.validated_data['password']
+        serializer.save(password=make_password(password))

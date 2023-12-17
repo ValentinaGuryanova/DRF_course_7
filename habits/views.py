@@ -25,6 +25,7 @@ class HabitCreateAPIView(generics.CreateAPIView):
 class HabitListAPIView(generics.ListAPIView):
     """ Вывод списка привычек пользователя """
 
+    queryset = Habit.objects.all()
     serializer_class = HabitSerializer
     pagination_class = HabitPrizePaginator
     permission_classes = [IsAuthenticated, IsOwner]
