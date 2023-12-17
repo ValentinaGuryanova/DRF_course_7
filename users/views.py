@@ -1,10 +1,9 @@
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
-
+from habits.permissions import IsOwner
 from users.models import User
-# from users.permissions import IsOwner, IsSuperuser
-from users.serializers import UserSerializer, AnyUserSerializer
-# from rest_framework.permissions import IsAuthenticated
+from users.serializers import UserSerializer
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -16,10 +15,10 @@ class UserCreateAPIView(generics.CreateAPIView):
 class UserListAPIView(generics.ListAPIView):
     """ Класс для вывода списка пользователей """
 
-    serializer_class = AnyUserSerializer
+    serializer_class = UserSerializer
     queryset = User.objects.all()
 
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class UserRetrieveAPIView(generics.RetrieveAPIView):
@@ -34,7 +33,7 @@ class UserUpdateAPIView(generics.UpdateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-    # permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class UserDestroyAPIView(generics.DestroyAPIView):
@@ -42,4 +41,4 @@ class UserDestroyAPIView(generics.DestroyAPIView):
 
     queryset = User.objects.all()
 
-    # permission_classes = [IsAuthenticated, IsOwner | IsSuperuser]
+    permission_classes = [IsAuthenticated, IsOwner]

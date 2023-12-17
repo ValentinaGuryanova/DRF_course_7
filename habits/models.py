@@ -40,11 +40,13 @@ class Habit(models.Model):
     action = models.CharField(max_length=100, verbose_name='действие привычки')
     habit_is_good = models.BooleanField(default=True, verbose_name='признак приятной привычки')
     connected_habit = models.ForeignKey('self', on_delete=models.CASCADE, **NULLABLE, verbose_name='связанная привычка')
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default=PERIOD_DAILY, verbose_name='периодичность привычки')
+    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default=PERIOD_DAILY,
+                              verbose_name='периодичность привычки')
     prize = models.ForeignKey(Prize, on_delete=models.CASCADE, **NULLABLE, verbose_name='приз')
     duration = models.DurationField(default=timedelta(minutes=2), verbose_name='продолжительность выполнения привычки')
     habit_is_public = models.BooleanField(default=True, verbose_name='признак публичной привычки')
-    habit_owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец', **NULLABLE)
+    habit_owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                    verbose_name='владелец', **NULLABLE)
 
     def __str__(self):
         return f'{self.user} - {self.name}'
