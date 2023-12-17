@@ -1,17 +1,4 @@
 
-# class MyBot:
-#     URL = 'https://api.telegram.org/bot'
-#     TOKEN = TELEGRAM_ACCESS_TOKEN
-#
-#     def send_message(self, message):
-#         requests.post(
-#             url=f'{self.URL}{self.TOKEN}/sendMessage',
-#             data={
-#                 'chat_id': '1291526493',
-#                 'text': message
-#             }
-#         )
-
 import requests
 from django.http import HttpResponse
 
@@ -19,7 +6,7 @@ from config.settings import TELEGRAM_ACCESS_TOKEN, TELEGRAM_CHAT_ID
 from habits.models import Habit
 
 bot_token = TELEGRAM_ACCESS_TOKEN
-tg_chat_id = TELEGRAM_CHAT_ID
+chat_id = TELEGRAM_CHAT_ID
 get_id_url = f'https://api.telegram.org/bot{bot_token}/getUpdates'
 send_message_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
 
@@ -35,20 +22,20 @@ def send_message_to_bot(chat_id, message):
     return response
 
 
-def create_message(habit_id):
+def create_message(id):
     """ Функция создания сообщения для отправки в телеграм-бот """
 
-    habit = Habit.objects.get(id=habit_id)
+    habit = Habit.objects.get(id=id)
 
     user = habit.user
     time = habit.time
-    action = habit.habit_action
-    place = habit.habit_place
-    duration = round(habit.habit_duration.total_seconds() / 60)
+    action = habit.action
+    place = habit.place
+    duration = round(habit.duration.total_seconds() / 60)
 
     message = f'Привет {user}! Время {time}. Пора идти в {place} и сделать {action}. Это займет {duration} минут!'
 
-    response = send_message_to_bot(tg_chat_id, message)
+    response = send_message_to_bot(chat_id, message)
     if habit.connected_habit or habit.prize:
         if habit.connected_habit:
             habit_is_good_id = habit.connected_habit.id
@@ -58,7 +45,7 @@ def create_message(habit_id):
                             f'в течение {nice_time} минут')
 
             time.sleep(10)
-            nice_response = send_message_to_bot(tg_chat_id, nice_message)
+            nice_response = send_message_to_bot(chat_id, nice_message)
 
             return HttpResponse(nice_response)
 
@@ -66,7 +53,7 @@ def create_message(habit_id):
             prize_message = f'Молодец! Ты выполнил {action}, за это тебе подарок {habit.prize.description}'
 
             time.sleep(10)
-            nice_response = send_message_to_bot(tg_chat_id, prize_message)
+            nice_response = send_message_to_bot(chat_id, prize_message)
 
             return HttpResponse(nice_response)
     return HttpResponse(response)

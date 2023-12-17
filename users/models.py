@@ -14,6 +14,8 @@ class User(AbstractUser):
     city = models.CharField(max_length=100, verbose_name='город', **NULLABLE)
     is_active = models.BooleanField(choices=VERSION_CHOICES, default=True, verbose_name='Статус пользователя')
 
+    telegram_id = models.CharField(max_length=20, verbose_name='telegram_id', **NULLABLE)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 

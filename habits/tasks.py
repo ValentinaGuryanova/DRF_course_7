@@ -1,7 +1,9 @@
-from datetime import datetime
+import json
+from datetime import datetime, timedelta
 
 import pytz
 from celery import shared_task
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from habits.models import Habit
 from habits.services import create_message
@@ -37,3 +39,21 @@ def check_habits_weekly():
 
     for habit in habits:
         create_message(habit.id)
+
+
+@shared_task
+def set_schedule(*args, **kwargs):
+    schedule, created = IntervalSchedule.objects.get_or_create(
+        every=10,
+        period=IntervalSchedule.SECONDS,
+    )
+    PeriodicTask.objects.create(
+        interval=schedule,
+        name='Importing contacts',
+        task='habits.services.send_message_to_bot',
+        args=json.dumps(['arg1', 'arg2']),
+        kwargs=json.dumps({
+            'be_careful': True,
+        }),
+        expires=datetime.utcnow() + timedelta(seconds=30)
+    )

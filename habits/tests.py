@@ -66,6 +66,8 @@ class HabitTestCase(APITestCase):
     def test_list_habit(self):
         """ тестирование списка привычек """
 
+        self.maxDiff = None
+
         # отправляем запрос на аутентификацию пользователя
         response = self.client.post('/users/token/', {"email": "vmalnova@yandex.ru", "password": "12345"})
         self.access_token = response.json().get("access")
@@ -97,15 +99,15 @@ class HabitTestCase(APITestCase):
         # проверяем ответ на соответствие сохраненных данных
         self.assertEquals(
             response.json(),
-            {'count': 1, 'next': None, 'previous': None, 'results': [{'id': 5, 'user': 'Test',
-                                                                      'name': 'Test', 'place': None,
-                                                                      'time': None, 'action': 'Test',
-                                                                      'habit_is_good': True,
-                                                                      'period': 'ежедневно',
-                                                                      'duration': '00:02:00',
-                                                                      'habit_is_public': True, 'connected_habit': None,
-                                                                      'prize': None, 'habit_owner': 5}]}
-
+            {'count': 1, 'next': None, 'previous': None,
+             'results': [{'id': 5, 'user': 'Test',
+                          'name': 'Test', 'place': None,
+                          'time': None, 'action': 'Test',
+                          'habit_is_good': True,
+                          'period': 'ежедневно',
+                          'duration': '00:02:00',
+                          'habit_is_public': True, 'connected_habit': None,
+                          'prize': None, 'habit_owner': 5}]}
         )
 
     def test_detail_habit(self):

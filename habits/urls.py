@@ -22,6 +22,5 @@ urlpatterns = [
     path('prize_update/<int:pk>/', PrizeUpdatePIView.as_view(), name='prize_change'),
     path('prize_delete/<int:pk>/', PrizeDestroyPIView.as_view(), name='prize_delete'),
 
-    #path('send_message/', check_habit, name='send_message'),
     path('get_bot_id/', get_bot_id, name='get_bot_id'),
 ]
