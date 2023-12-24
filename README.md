@@ -9,8 +9,10 @@
 - Установить и запустить Redis
 - Создать базу данных в PostreSQL CREATE DATABASE drf_course_7
 - Создать python manage.py makemigrate и применить миграции python manage.py migrate
+- Запустить Redis локально (на Windows)
+- В терминале набрать команду celery -A config worker -l info --pool=solo
+- В терминале набрать команду celery -A config beat -l info -S django
 - Запустить проект python manage.py runserver
-- Запустить  celery -A config worker -l info -P eventlet, celery -A config Beat -l info -S django
 - Откройте браузер и перейдите по адресу http://127.0.0.1:8000 для доступа к приложению.
 
 ## Решены следующие задачи:
