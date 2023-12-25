@@ -4,25 +4,33 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """ Сериализатор пользователя """
+    """Класс-сериализатор для модели User"""
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'telegram_id', 'is_active',)
+        fields = '__all__'
 
 
-class UserCreateSerializer(serializers.Serializer):
-    """ Сериализатор создания пользователя """
+class UserRegisterSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField()
 
-    username = serializers.CharField(max_length=150)
-    description = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'password2', 'telegram_id']
 
-    def save(self, **kwargs):
+    def save(self, *args, **kwargs):
         user = User(
-            username=self.validated_data['username'],
-            is_active=False
+            email=self.validated_data['email'],
+            telegram_id=self.validated_data['telegram_id'],
+            is_superuser=False,
+            is_staff=False,
+            is_active=True
         )
-        user.save()
 
-    def get_description(self):
-        return 'Учетная запись созданна вам нужно активировать её через телеграм бот нажатием /start'
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+        if password != password2:
+            raise serializers.ValidationError({password: "Пароль не совпадает"})
+        user.set_password(password)
+        user.save()
+        return user
