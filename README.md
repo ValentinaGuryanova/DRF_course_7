@@ -6,10 +6,11 @@
 - Активировать виртуальное окружение venv/bin/activate.bat
 - Установить зависимости pip install -r requirements.txt
 - Создать файл .env, заполнить его данными из файла env.sample
-- Установить и запустить Redis
 - Создать базу данных в PostreSQL CREATE DATABASE drf_course_7
 - Создать python manage.py makemigrate и применить миграции python manage.py migrate
-- Запустить Redis локально (на Windows)
+- Создать пользователя командой python manage.py csu
+- Создать пользователя командой python manage.py user_create
+- Установить и запустить Redis локально (на Windows)
 - В терминале набрать команду celery -A config worker -l info --pool=solo
 - В терминале набрать команду celery -A config beat -l info -S django
 - Запустить проект python manage.py runserver
