@@ -1,7 +1,7 @@
 from django.urls import path
 
 from habits.apps import HabitsConfig
-from habits.services import get_bot_id
+from habits.tasks import get_bot_id
 from habits.views import HabitCreateAPIView, HabitListAPIView, HabitRetrieveAPIView, HabitUpdateAPIView, \
     HabitDestroyAPIView, PrizeCreateAPIView, PrizeListAPIView, HabitPublicListAPIView, PrizeRetrieveAPIView, \
     PrizeUpdatePIView, PrizeDestroyPIView
