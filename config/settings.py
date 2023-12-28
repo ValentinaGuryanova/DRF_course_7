@@ -164,20 +164,22 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-TELEGRAM_ACCESS_TOKEN = os.getenv('TELEGRAM_ACCESS_TOKEN')
+TELEGRAM_BOT_API_KEY = os.getenv('TELEGRAM_BOT_API_KEY')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+TELEGRAM_URL = os.getenv('TELEGRAM_URL')
 
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
-CELERY_BEAT_SCHEDULE = {
-    'TelegramBotUpdates': {
-        'task': 'habits.tasks.send_message_to_bot',
-        'schedule': timedelta(minutes=1),
-    },
-}
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# CELERY_BEAT_SCHEDULE = {
+#     'TelegramBot': {
+#         'task': 'habits.tasks.send_message_to_bot',
+#         'schedule': timedelta(minutes=1),
+#     },
+# }
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",

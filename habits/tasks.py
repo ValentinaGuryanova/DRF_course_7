@@ -1,70 +1,29 @@
-
 import requests
 from celery import shared_task
-from django.http import HttpResponse
+from django.conf import settings
 
-from config.settings import TELEGRAM_ACCESS_TOKEN, TELEGRAM_CHAT_ID
+import habits
+from config.settings import TELEGRAM_CHAT_ID, TELEGRAM_BOT_API_KEY
 from habits.models import Habit
 
-bot_token = TELEGRAM_ACCESS_TOKEN
+bot_token = TELEGRAM_BOT_API_KEY
 telegram_id = TELEGRAM_CHAT_ID
 get_id_url = f'https://api.telegram.org/bot{bot_token}/getUpdates'
 send_message_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
 
 
 @shared_task
-def send_message_to_bot(telegram_id, message):
+def send_message_to_bot(habit_id):
     """ функция отправки сообщения в телеграм-бот
     chat_id: id чата
     message: передаваемое сообщение
     """
+    habit = Habit.objects.get(id=habit_id)
 
-    params = {"chat_id": telegram_id, "text": message}
-    response = requests.get(send_message_url, params=params).json()
-    return response
-
-
-@shared_task
-def create_message(id):
-    """ Функция создания сообщения для отправки в телеграм-бот """
-
-    habit = Habit.objects.get(id=id)
-
-    user = habit.user
-    time = habit.time
-    action = habit.action
-    place = habit.place
-    duration = round(habit.duration.total_seconds() / 60)
-
-    message = f'Привет {user}! Время {time}. Пора идти в {place} и сделать {action}. Это займет {duration} минут!'
-
-    response = send_message_to_bot(telegram_id, message)
-    if habit.connected_habit or habit.prize:
-        if habit.connected_habit:
-            habit_is_good_id = habit.connected_habit.id
-            habit_is_good = Habit.objects.get(id=habit_is_good_id)
-            nice_time = round(habit_is_good.duration.total_seconds() / 60)
-            message = (f'Молодец! Ты выполнил {action}, за это тебе подарок {habit_is_good.action} '
-                       f'в течение {nice_time} минут')
-
-            time.sleep(10)
-            nice_response = send_message_to_bot(telegram_id, message)
-
-            return HttpResponse(nice_response)
-
-        if habit.prize:
-            message = f'Молодец! Ты выполнил {action}, за это тебе подарок {habit.prize.description}'
-
-            time.sleep(10)
-            nice_response = send_message_to_bot(telegram_id, message)
-
-            return HttpResponse(nice_response)
-    return HttpResponse(response)
-
-
-@shared_task
-def get_bot_id():
-    """ Получение данных чата """
-
-    response = requests.get(get_id_url).json()
-    return HttpResponse(response)
+    requests.post(
+        url=f'{settings.TELEGRAM_URL}{settings.TELEGRAM_BOT_API_KEY}/sendMessage',
+        data={
+            'chat_id': habit.user.telegram_id,
+            'text': habits.services.create_message
+        }
+    )

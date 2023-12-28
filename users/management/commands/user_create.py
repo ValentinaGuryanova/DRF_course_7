@@ -7,11 +7,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user = User.objects.create(
-            email="test@gmail.com",
+            email="gvalushka@mail.ru",
             is_superuser=False,
             is_staff=False,
             is_active=True
         )
 
-        user.set_password("test")
+        user.set_password("123")
         user.save()

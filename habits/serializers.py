@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from habits.models import Habit, Prize
+from habits.models import Habit
 from habits.validators import validator_for_habit
 
 
@@ -14,11 +14,3 @@ class HabitSerializer(serializers.ModelSerializer):
         validators = [
             validator_for_habit,
         ]
-
-
-class PrizeSerializer(serializers.ModelSerializer):
-    """ Сериализатор для модели Связанной привычки """
-
-    class Meta:
-        model = Prize
-        fields = '__all__'
