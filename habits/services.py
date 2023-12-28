@@ -1,11 +1,14 @@
 import json
+
+from django.http import HttpResponse
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
+
 from datetime import datetime, timedelta
 
 import pytz
-from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from habits.models import Habit
-from habits.tasks import create_message
+from habits.tasks import telegram_id, send_message_to_bot
 
 
 def check_habits_daily():
@@ -38,18 +41,63 @@ def check_habits_weekly():
         create_message(habit.id)
 
 
-def set_schedule(*args, **kwargs):
+def create_message(habit_id):
+    """ Функция создания сообщения для отправки в телеграм-бот """
+
+    habit = Habit.objects.get(id=habit_id)
+
+    user = habit.user
+    time = habit.time
+    action = habit.action
+    place = habit.place
+    duration = round(habit.duration.total_seconds() / 60)
+
+    message = f'Привет {user}! Время {time}. Пора идти в {place} и сделать {action}. ' \
+              f'Это займет {duration} минут!'
+
+    response = send_message_to_bot(telegram_id, message)
+    if habit.connected_habit:
+        habit_is_good_id = habit.connected_habit.id
+        habit_is_good = Habit.objects.get(id=habit_is_good_id)
+        nice_time = round(habit_is_good.duration.total_seconds() / 60)
+        message = (f'Молодец! Ты выполнил {action}, за это тебе подарок {habit_is_good.action} '
+                   f'в течение {nice_time} минут')
+
+        time.sleep(10)
+        nice_response = send_message_to_bot(telegram_id, message)
+        return HttpResponse(nice_response)
+
+    return HttpResponse(response)
+
+
+def create_reminder(habit):
+    """ Создание расписания и задачи """
+
     schedule, created = IntervalSchedule.objects.get_or_create(
         every=10,
-        period=IntervalSchedule.SECONDS,
+        period=IntervalSchedule.MINUTES,
     )
     PeriodicTask.objects.create(
         interval=schedule,
-        name='TelegramBotUpdates',
-        task='habits.services.send_message_to_bot',
+        name='Send_message_to_bot',
+        task='habits.tasks.send_message_to_bot',
         args=json.dumps(['arg1', 'arg2']),
         kwargs=json.dumps({
-            'be_careful': True,
+            'habit_id': habit.id,
         }),
         expires=datetime.utcnow() + timedelta(seconds=30)
     )
+
+
+def delete_reminder(habit):
+    """ Удаление задачи """
+
+    task_name = f'send_message_to_bot_{habit.id}'
+    PeriodicTask.objects.filter(name=task_name).delete()
+
+
+def update_reminder(habit):
+    """ Обновление задачи """
+
+    delete_reminder(habit)
+    create_reminder(habit)

@@ -1,10 +1,11 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from habits.models import Habit, Prize
-from habits.paginators import HabitPrizePaginator
-from habits.permissions import IsOwner, IsPrizeOwner
-from habits.serializers import HabitSerializer, PrizeSerializer
+from habits.models import Habit
+from habits.paginators import HabitPaginator
+from habits.permissions import IsOwner
+from habits.serializers import HabitSerializer
+from habits.services import create_reminder, update_reminder, delete_reminder
 
 
 class HabitCreateAPIView(generics.CreateAPIView):
@@ -17,8 +18,8 @@ class HabitCreateAPIView(generics.CreateAPIView):
         """ Определяем порядок создания нового объекта """
 
         new_habit = serializer.save()
-        new_habit.habit_owner = self.request.user
-
+        new_habit.user = self.request.user
+        create_reminder(new_habit)
         new_habit.save()
 
 
@@ -27,13 +28,13 @@ class HabitListAPIView(generics.ListAPIView):
 
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
-    pagination_class = HabitPrizePaginator
+    pagination_class = HabitPaginator
     permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         """ Определяем параметры вывода объектов """
 
-        queryset = Habit.objects.filter(habit_owner=self.request.user)
+        queryset = Habit.objects.filter(user=self.request.user)
         return queryset
 
 
@@ -41,7 +42,7 @@ class HabitPublicListAPIView(generics.ListAPIView):
     """ Вывод списка публичных привычек """
 
     serializer_class = HabitSerializer
-    pagination_class = HabitPrizePaginator
+    pagination_class = HabitPaginator
     permission_classes = [AllowAny]
 
     def get_queryset(self):
@@ -66,6 +67,12 @@ class HabitUpdateAPIView(generics.UpdateAPIView):
     queryset = Habit.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
 
+    def perform_update(self, serializer):
+
+        habit = serializer.save()
+        update_reminder(habit)
+        habit.save()
+
 
 class HabitDestroyAPIView(generics.DestroyAPIView):
     """ Удаление привычки """
@@ -73,54 +80,7 @@ class HabitDestroyAPIView(generics.DestroyAPIView):
     queryset = Habit.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
 
+    def perform_destroy(self, instance):
 
-class PrizeCreateAPIView(generics.CreateAPIView):
-    """ Создание награды """
-
-    serializer_class = PrizeSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        """ Определяем порядок создания нового объекта """
-
-        new_prize = serializer.save()
-        new_prize.owner = self.request.user
-
-        new_prize.save()
-
-
-class PrizeListAPIView(generics.ListAPIView):
-    """ Вывод списка наград """
-
-    serializer_class = PrizeSerializer
-    permission_classes = [IsAuthenticated, IsPrizeOwner]
-    pagination_class = HabitPrizePaginator
-
-    def get_queryset(self):
-        """ Определяем параметры вывода объектов """
-
-        queryset = Prize.objects.filter(owner=self.request.user)
-        return queryset
-
-
-class PrizeRetrieveAPIView(generics.RetrieveAPIView):
-    """ Просмотр информации об одной награде """
-
-    serializer_class = PrizeSerializer
-    queryset = Prize.objects.all()
-    permission_classes = [IsAuthenticated, IsPrizeOwner]
-
-
-class PrizeUpdatePIView(generics.UpdateAPIView):
-    """ Изменение награды """
-
-    serializer_class = PrizeSerializer
-    queryset = Prize.objects.all()
-    permission_classes = [IsAuthenticated, IsPrizeOwner]
-
-
-class PrizeDestroyPIView(generics.DestroyAPIView):
-    """ Удаление награды """
-
-    queryset = Prize.objects.all()
-    permission_classes = [IsAuthenticated, IsPrizeOwner]
+        delete_reminder(instance)
+        instance.delete()
