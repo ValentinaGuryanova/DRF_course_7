@@ -1,4 +1,4 @@
-# DRF_course_7 (Трекер полезных привычек)
+# DRF_course_7 + Docker (Трекер полезных привычек)
 
 ## Для работы с проектом необходимо выполнить следующие действия:
 
@@ -108,3 +108,19 @@
 ## Тестирование проекта
 
 Для тестирования проекта запустить команду: python manage.py test
+
+### Курсовая 8 Docker Compose
+
+# Cозданы отдельные контейнеры для следующих сервисов:
+- Django,
+- PostrgeSQL,
+- Redis,
+- Celery,
+- Celery_beat.
+  
+# Команды:
+Применить миграции docker-compose exec app python manage.py migrate  
+Собрать образ командой docker-compose build
+Запустить контейнеры командой docker-compose up
+Либо docker-compose up -d --build
+
