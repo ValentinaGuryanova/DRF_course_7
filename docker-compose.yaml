@@ -4,11 +4,13 @@ services:
 
   redis:
     image: redis
+    container_name: redis
     ports:
       - '6379:6379'
 
   db:
     image: postgres
+    container_name: db
     environment:
       POSTGRES_PASSWORD: mysecretpassword
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -24,6 +26,9 @@ services:
 
   app:
     build: .
+    container_name: app
+    environment:
+      - .env
     tty: true
     command: python manage.py runserver 0.0.0.0:8000
     ports:
@@ -34,8 +39,11 @@ services:
       db:
         condition: service_healthy
 
-  celery:
+  celery_worker:
     build: .
+    container_name: celery_worker
+    environment:
+      - .env
     tty: true
     command: celery -A config worker -l INFO
     depends_on:
@@ -44,6 +52,9 @@ services:
 
   celery_beat:
     build: .
+    container_name: celery_beat
+    environment:
+      - .env
     restart: always
     tty: true
     command: celery -A config beat -l INFO -S django
